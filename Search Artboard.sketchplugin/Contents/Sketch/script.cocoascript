@@ -1,0 +1,78 @@
+// cmd j
+
+var onRun = function(context) {
+  var api = context.api()
+var doc = context.document
+var app = [NSApplication sharedApplication]
+
+var findLayersMatchingPredicate_inContainer_filterByType = function(predicate, container, layerType) {
+    var scope;
+    switch (layerType) {
+        case MSPage : 
+            scope = doc.pages()
+            return scope.filteredArrayUsingPredicate(predicate)
+        break;
+            
+        case MSArtboardGroup :
+            if(typeof container !== 'undefined' && container != nil) {
+                if (container.className == "MSPage") {
+                    scope = container.artboards()
+                    return scope.filteredArrayUsingPredicate(predicate)
+                }
+            } else {
+                // search all pages
+                var filteredArray = NSArray.array()
+                var loopPages = doc.pages().objectEnumerator(), page;
+                while (page = loopPages.nextObject()) {
+                    scope = page.artboards()
+                    filteredArray = filteredArray.arrayByAddingObjectsFromArray(scope.filteredArrayUsingPredicate(predicate))
+                }
+                return filteredArray
+            }
+        break;
+
+        default :
+            if(typeof container !== 'undefined' && container != nil) {
+                scope = container.children()
+                return scope.filteredArrayUsingPredicate(predicate)
+            } else {
+                // search all pages
+                var filteredArray = NSArray.array()
+                var loopPages = doc.pages().objectEnumerator(), page;
+                while (page = loopPages.nextObject()) {
+                    scope = page.children()
+                    filteredArray = filteredArray.arrayByAddingObjectsFromArray(scope.filteredArrayUsingPredicate(predicate))
+                }
+                return filteredArray
+            }
+    }
+    return NSArray.array() // Return an empty array if no matches were found
+}
+
+var findFirstLayerMatchingPredicate_inContainer_filterByType = function(predicate, container, layerType) {
+    var filteredArray = findLayersMatchingPredicate_inContainer_filterByType(predicate, container, layerType)
+    return filteredArray.firstObject()
+}
+
+
+var findArtboardsNamed = function(artboardName) {
+    var predicate = NSPredicate.predicateWithFormat("name CONTAINS[cd] %@", artboardName)
+    return findLayersMatchingPredicate_inContainer_filterByType(predicate, nil, MSArtboardGroup)
+}
+
+var query = api.getStringFromUser("🔎 Search", "Artboard name");
+var artboards = findArtboardsNamed(query)
+
+if(artboards.count() > 0) {
+    var doc = api.selectedDocument
+    var firstArtboard = artboards[0]
+    var wrappedArtboard = api.wrapObject(firstArtboard, doc)
+    wrappedArtboard.iterate(function(layer){
+        doc.centerOnLayer(wrappedArtboard)
+return
+    })
+} else {
+    var msg = "No artboard(s) found with name '" + query + "'."
+    [app displayDialog:msg withTitle:"😅 Oops"]
+}
+};

@@ -1,0 +1,24 @@
+{
+  "author" : "",
+  "commands" : [
+    {
+      "script" : "script.cocoascript",
+      "name" : "Search Artboard",
+      "handlers" : {
+        "run" : "onRun"
+      },
+      "identifier" : "com.bohemiancoding.sketch.runscriptidentifier"
+    }
+  ],
+  "menu" : {
+    "items" : [
+      "com.bohemiancoding.sketch.runscriptidentifier"
+    ],
+    "title" : "Search Artboard"
+  },
+  "identifier" : "com.example.sketch.58a2c8c7-6396-459b-893d-54a9979a3e12",
+  "version" : "1.0",
+  "description" : "",
+  "authorEmail" : "",
+  "name" : "Search Artboard"
+}
